@@ -8,12 +8,16 @@ import Point from '@arcgis/core/geometry/Point'
 import { useEffect, useState } from 'react'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
+import { AlertTitle } from '@mui/material'
+
 
 
 export default function Home() {
     const [latitude, setLatitude] = useState<number | null>(null)
     const [longitude, setLongitude] = useState<number | null>(null)
     const [mapView, setMapView] = useState<MapView | null>(null)
+    const [showAlert, setShowAlert] = useState<boolean>(false)
 
     useEffect(() => {
         const map: Map = new Map({
@@ -29,22 +33,21 @@ export default function Home() {
         newMapView.when(() => {
             newMapView.on('click',(event) => {
                 const mapPoint = event?.mapPoint
-                const point: Point = new Point({
-                    latitude: mapPoint.latitude,
-                    longitude: mapPoint.longitude
+                const point = new Point({
+                    latitude: mapPoint?.latitude,
+                    longitude: mapPoint?.longitude
                 })
-                const marker: SimpleMarkerSymbol = new SimpleMarkerSymbol({
+                const marker = new SimpleMarkerSymbol({
                     color: 'blue',
                     outline: {
                         color: 'tranparent',
                         width: 2
                     }
                 })
-                const graphic: Graphic = new Graphic({
+                const graphic = new Graphic({
                     geometry: point,
                     symbol: marker
                 })
-                mapView?.graphics.removeAll()
                 mapView?.graphics.add(graphic)
             })
         })
@@ -81,21 +84,18 @@ export default function Home() {
             mapView?.graphics.removeAll()
             mapView?.graphics.add(graphic)
             mapView?.goTo(point)
+            setShowAlert(false)
+        }
+        else if(latitude === null && longitude === null) {
+            setShowAlert(true)
         }
     }
 
-    useEffect(() => {
-        console.log(latitude)
-    }, [latitude])
-    useEffect(() => {
-        console.log(longitude)
-    }, [longitude])
-
     function onClearNavigate() {
         mapView?.graphics.removeAll()
-        setLatitude(null)
-        setLongitude(null)
-        console.log(latitude, longitude)
+        // setLatitude(null)
+        // setLongitude(null)
+        setShowAlert(false)
     }
     return <div className='flex'>
         <div className="panel">
@@ -105,6 +105,13 @@ export default function Home() {
             <TextField id="outlined-basic" label="Longitude" variant="outlined" fullWidth onChange={onChangeInputLongitude}/>
             <Button onClick={onNavigate}>Pin</Button>
             <Button onClick={onClearNavigate} color='error'>Clear pin</Button>
+                {showAlert&& (
+                <Alert severity='error' variant='filled'>
+                    <AlertTitle>Error</AlertTitle>
+                    Please fill in input latitude & longitude
+                </Alert>
+
+                )}
             </div>
         </div>
         <div id="viewDiv"></div>
