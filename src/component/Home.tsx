@@ -84,10 +84,18 @@ export default function Home() {
         }
     }
 
+    useEffect(() => {
+        console.log(latitude)
+    }, [latitude])
+    useEffect(() => {
+        console.log(longitude)
+    }, [longitude])
+
     function onClearNavigate() {
         mapView?.graphics.removeAll()
         setLatitude(null)
         setLongitude(null)
+        console.log(latitude, longitude)
     }
     return <div className='flex'>
         <div className="panel">
